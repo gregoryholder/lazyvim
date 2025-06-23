@@ -28,6 +28,7 @@ return {
         replace = "gsr", -- Replace surrounding
         update_n_lines = "gsn", -- Update `n_lines`
       },
+      respect_selection_type = true,
     },
   },
 }

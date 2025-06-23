@@ -1,6 +1,7 @@
 return {
   "nvim-treesitter/nvim-treesitter",
   opts = {
+    indent = false,
     incremental_selection = {
       enable = true,
       keymaps = {
