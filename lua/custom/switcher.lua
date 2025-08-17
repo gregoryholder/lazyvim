@@ -5,30 +5,45 @@ function M.dispatch_switch()
   local ft = vim.bo.filetype
 
   if ft == "cpp" or ft == "c" or ft == "objc" then
-    -- Use built-in Clangd switch
     vim.cmd("ClangdSwitchSourceHeader")
-  elseif ft == "xml" then
-    M.switch_xml_cfglocale()
   else
-    print("No switch behavior defined for filetype: " .. ft)
+    M.smart_cycle()
   end
 end
 
-function M.switch_xml_cfglocale()
+function M.smart_cycle()
   local current = vim.api.nvim_buf_get_name(0)
-  local target = nil
+  local base = current:gsub("%.cfglocale%.xml$", "")
+                     :gsub("%.before%.py$", "")
+                     :gsub("%.xml$", "")
+                     :gsub("%.py$", "") -- fallback
 
-  if current:match("%.cfglocale%.xml$") then
-    target = current:gsub("%.cfglocale%.xml$", ".xml")
-  elseif current:match("%.xml$") then
-    target = current:gsub("%.xml$", ".cfglocale.xml")
+  local cycle = {
+    base .. ".xml",
+    base .. ".cfglocale.xml",
+    base .. ".before.py",
+  }
+
+  -- Find current position in cycle
+  local current_index = nil
+  for i, path in ipairs(cycle) do
+    if current == path then
+      current_index = i
+      break
+    end
   end
 
-  if target and vim.fn.filereadable(target) == 1 then
+  -- Try next available file in cycle
+  for offset = 1, #cycle - 1 do
+    local next_index = ((current_index or 0) + offset - 1) % #cycle + 1
+    local target = cycle[next_index]
+    -- if vim.fn.filereadable(target) == 1 then
     vim.cmd("edit " .. target)
-  else
-    print("No corresponding file found: " .. (target or "unknown"))
+      -- return
+    -- end
   end
+
+  print("No other file in cycle found.")
 end
 
 return M
