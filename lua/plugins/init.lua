@@ -72,4 +72,27 @@ return {
       on_attach = nil, -- (fun(buf: integer): boolean) return false to disable attaching
     },
   },
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      servers = {
+        rust_analyzer = {},
+        clangd = {
+          cmd = {
+            "clangd",
+            "-j=12",
+            "--malloc-trim",
+            "--background-index",
+            "--pch-storage=memory",
+            "--clang-tidy",
+            "--header-insertion=iwyu",
+            "--completion-style=detailed",
+            "--function-arg-placeholders",
+            "--fallback-style=llvm",
+            "--header-insertion=never",
+          },
+        },
+      },
+    },
+  },
 }
