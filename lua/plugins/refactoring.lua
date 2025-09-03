@@ -3,15 +3,15 @@ return {
   opts = {
     print_var_statements = {
       cpp = {
+        'CTrace::System().Dev() << "%s " << %s;',
         'mTrace.Dev() << "%s " << %s;',
-        'CTrace::System().Dev() << "%s " << %s;'
-      }
+      },
     },
     printf_statements = {
       cpp = {
+        'CTrace::System().Dev() << "%s";',
         'mTrace.Dev() << "%s";',
-        'CTrace::System().Dev() << "%s";'
-      }
-    }
-  }
+      },
+    },
+  },
 }
