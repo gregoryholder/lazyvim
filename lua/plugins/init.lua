@@ -45,5 +45,13 @@ return {
     opts = {
       colorscheme = "catppuccin",
     },
-  }
+  },
+  {
+    "stevearc/conform.nvim",
+    opts = {
+      formatters_by_ft = {
+        rust = { "rustfmt", lsp_format = "fallback" },
+      },
+    },
+  },
 }
