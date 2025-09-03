@@ -33,3 +33,9 @@ local switcher = require("custom.switcher")
 
 vim.keymap.set("n", "<leader>ch", switcher.dispatch_switch, { desc = "Switch Header/Source or XML/CFGlocale" })
 
+vim.keymap.set('n', '<leader>cf', function()
+  local filename = vim.fn.expand('%:t:r')  -- Get filename without path and extension
+  vim.fn.setreg('+', filename)             -- Copy to system clipboard
+  print('Copied to clipboard: ' .. filename)
+end, { desc = 'Copy filename (no path, no extension) to clipboard' })
+
