@@ -21,7 +21,7 @@ vim.cmd("set noswapfile")
 -- require("xml_macro_lsp_helper").setup()
 --
 package.loaded.xml_delay_inlay = nil
-local delay_inlay = require("xml_delay_inlay")
+local delay_inlay = require("tae_inlays")
 vim.keymap.set("n", "<leader>ue", delay_inlay.toggle_inlays, { desc = "Toggle XML Delay Inlays" })
 
 vim.api.nvim_create_autocmd({ "BufEnter" }, {
