@@ -1,7 +1,28 @@
 return {
   "snacks.nvim",
+  keys = {
+    { "<leader>ps", function() Snacks.profiler.scratch() end, desc = "Profiler Scratch Bufer" },
+    { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep" },
+  },
   opts = {
+    dirs = {"Modules"},
     picker  = {
+      layout = {
+        preview = "main",
+        preset = "ivy",
+      },
+      -- win = {
+      --   input = {
+      --     keys = {
+      --       ["<c-j>"] = {},
+      --       ["<c-k>"] = {},
+      --     }
+      --   },
+      --   list = {
+      --     ["<c-j>"] = {},
+      --     ["<c-k>"] = {},
+      --   }
+      -- },
       util = {
         truncpath = function(path, len, opts)
             return "test"
@@ -12,12 +33,20 @@ return {
           truncate = 100
         },
       },
+-- lua Snacks.picker.grep({dirs = {"Modules"}})
       sources = {
         grep = {
+          -- auto_close = false,
+          -- jump = {
+          --   close = false
+          -- },
+          -- dirs = {"Modules"},
           layout = {
-            layout = {
-              width = 0
-            }
+            preview = "main",
+            preset = "ivy",
+            -- layout = {
+            --   width = 0
+            -- }
           },
         },
         grep_word = {
@@ -29,6 +58,7 @@ return {
         },
         files = {
           hidden = true,
+          ignored = true,
           layout = {
             layout = {
               width = 0
@@ -47,6 +77,11 @@ return {
     }
   },
   config = function(_, opts)
+    -- Toggle the profiler
+    Snacks.toggle.profiler():map("<leader>pp")
+    -- Toggle the profiler highlights
+    Snacks.toggle.profiler_highlights():map("<leader>ph")
+
     original_truncpath = Snacks.picker.util.truncpath
     Snacks.picker.util.truncpath = function(path, len, opts)
       local cwd = svim.fs.normalize(opts and opts.cwd or vim.fn.getcwd(), { _fast = true, expand_env = false })

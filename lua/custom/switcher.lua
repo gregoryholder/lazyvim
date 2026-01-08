@@ -5,6 +5,9 @@ function M.dispatch_switch()
   local ft = vim.bo.filetype
 
   if ft == "cpp" or ft == "c" or ft == "objc" then
+  -- if folder is "src" or "inc", use basic path replace
+    -- local current = vim.api.nvim_buf_get_name(0)
+    -- local parent = current:gsub()
     vim.cmd("ClangdSwitchSourceHeader")
   else
     M.smart_cycle()
@@ -39,10 +42,9 @@ function M.smart_cycle()
     local target = cycle[next_index]
     -- if vim.fn.filereadable(target) == 1 then
     vim.cmd("edit " .. target)
-      -- return
+      return
     -- end
   end
-
   print("No other file in cycle found.")
 end
 

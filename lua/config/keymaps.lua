@@ -1,13 +1,17 @@
--- Keymaps are automatically loaded on the VeryLazy event
+
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 --
 --
-vim.keymap.set("n", "<C-u>", "<C-u>zz")
-vim.keymap.set("n", "<C-d>", "<C-d>zz")
+-- vim.keymap.set("n", "<C-u>", "<C-u>zz")
+-- vim.keymap.set("n", "<C-d>", "<C-d>zz")
 
 vim.keymap.set('n', '[x', '<Plug>(git-conflict-prev-conflict)')
 vim.keymap.set('n', ']x', '<Plug>(git-conflict-next-conflict)')
+
+vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
+vim.keymap.set("n", "<leader>Y", [["+Y]])
+
 -- recommended mappings
 -- resizing splits
 -- these keymaps will also accept a range,
@@ -33,6 +37,10 @@ local switcher = require("custom.switcher")
 
 vim.keymap.set("n", "<leader>ch", switcher.dispatch_switch, { desc = "Switch Header/Source or XML/CFGlocale" })
 
+-- -- prompt for a refactor to apply when the remap is triggered
+-- vim.keymap.set({ "n", "x" }, "<leader>rr", function()
+--   require("refactoring").select_refactor()
+-- end)
 vim.keymap.set('n', '<leader>cf', function()
   local filename = vim.fn.expand('%:t:r')  -- Get filename without path and extension
   vim.fn.setreg('+', filename)             -- Copy to system clipboard
