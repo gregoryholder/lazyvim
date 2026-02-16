@@ -78,6 +78,16 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
+        neocmake = {
+          init_options = {
+            lint = {
+              -- enable = false,
+            },
+          },
+          settings = {
+            line_max_words = 200
+          }
+        },
         -- jinja_lsp = {
         --   filetypes = { 'jinja', 'rust', 'python' },
         --   templates = { "Affaires", "Affaires/templates"},
@@ -85,7 +95,15 @@ return {
         --   lang = "python",
         --   hide_undefined = false,
         -- },
-        rust_analyzer = {},
+        rust_analyzer = {
+          settings = {
+            ['rust-analyzer'] = {
+              cargo = {
+                targetDir = true
+              },
+            }
+          }
+        },
         protols = {},
         clangd = {
           cmd = {
@@ -145,18 +163,18 @@ return {
     -- If you want to use the interactive feature of the `Subs` command right away, text-case.nvim
     -- has to be loaded on startup. Otherwise, the interactive feature of the `Subs` will only be
     -- available after the first executing of it or after a keymap of text-case.nvim has been used.
-    lazy = false,
+    lazy = true,
   },
-  {
-    "mfussenegger/nvim-lint",
-    opts = {
-      linters = {
-        markdownlint = {
-          args = { "--disable", "MD013", "--" },
-        },
-      },
-    },
-  },
+  -- {
+  --   "mfussenegger/nvim-lint",
+  --   opts = {
+  --     linters = {
+  --       markdownlint = {
+  --         args = { "--disable", "MD013", "--" },
+  --       },
+  --     },
+  --   },
+  -- },
   {
     "folke/flash.nvim",
     keys = {
@@ -164,18 +182,21 @@ return {
       { "S", mode = { "n", "x", "o", false } },
     },
   },
-  -- {
-  --   "hamidi-dev/kaleidosearch.nvim",
-  --   dependencies = {
-  --     "tpope/vim-repeat",       -- optional for dot-repeatability
-  --     "stevearc/dressing.nvim", -- optional for nice input
-  --   },
-  --   config = function()
-  --     require("kaleidosearch").setup({
-  --       -- optional configuration
-  --     })
-  --   end,
-  -- },
+  {
+    "hamidi-dev/kaleidosearch.nvim",
+    dependencies = {
+      "tpope/vim-repeat",       -- optional for dot-repeatability
+      "stevearc/dressing.nvim", -- optional for nice input
+    },
+    config = function()
+      require("kaleidosearch").setup({
+        keymaps = {
+          enabled = false,
+        }
+        -- optional configuration
+      })
+    end,
+  },
   {
     "danymat/neogen",
     -- config = true,
@@ -233,6 +254,7 @@ return {
       },
       parser = {
         comments = { "#", "//" },
+        comment_lines = 1,
         delimiter = {
           ft = {
             csv = ";",
@@ -307,10 +329,117 @@ return {
         mode = { "i", "s" },
       },
     },
-  }, -- }
+
+  },
   {
-    "esmuellert/vscode-diff.nvim",
-    dependencies = { "MunifTanjim/nui.nvim" },
-    cmd = "CodeDiff",
-  }
+  "nvim-mini/mini.hipatterns",
+  recommended = true,
+  desc = "Highlight colors in your code. Also includes Tailwind CSS support.",
+  event = "LazyFile",
+  opts = function()
+    local hi = require("mini.hipatterns")
+    return {
+      -- custom LazyVim option to enable the tailwind integration
+      tailwind = {
+        enabled = true,
+        ft = {
+          "astro",
+          "css",
+          "heex",
+          "html",
+          "html-eex",
+          "javascript",
+          "javascriptreact",
+          "rust",
+          "svelte",
+          "typescript",
+          "typescriptreact",
+          "vue",
+        },
+        -- full: the whole css class will be highlighted
+        -- compact: only the color will be highlighted
+        style = "full",
+      },
+      highlighters = {
+        hex_color = hi.gen_highlighter.hex_color({ priority = 2000 }),
+        -- shorthand = {
+        --   pattern = "()#%x%x%x()%f[^%x%w]",
+        --   group = function(_, _, data)
+        --     ---@type string
+        --     local match = data.full_match
+        --     local r, g, b = match:sub(2, 2), match:sub(3, 3), match:sub(4, 4)
+        --     local hex_color = "#" .. r .. r .. g .. g .. b .. b
+        --
+        --     return MiniHipatterns.compute_hex_color_group(hex_color, "bg")
+        --   end,
+        --   extmark_opts = { priority = 2000 },
+        -- },
+      },
+    }
+  end,
+  config = function(_, opts)
+    if type(opts.tailwind) == "table" and opts.tailwind.enabled then
+      -- reset hl groups when colorscheme changes
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        callback = function()
+          M.hl = {}
+        end,
+      })
+      opts.highlighters.tailwind = {
+        pattern = function()
+          if not vim.tbl_contains(opts.tailwind.ft, vim.bo.filetype) then
+            return
+          end
+          if opts.tailwind.style == "full" then
+            return "%f[%w:-]()[%w:-]+%-[a-z%-]+%-%d+()%f[^%w:-]"
+          elseif opts.tailwind.style == "compact" then
+            return "%f[%w:-][%w:-]+%-()[a-z%-]+%-%d+()%f[^%w:-]"
+          end
+        end,
+        group = function(_, _, m)
+          ---@type string
+          local match = m.full_match
+          ---@type string, number
+          local color, shade = match:match("[%w-]+%-([a-z%-]+)%-(%d+)")
+          shade = tonumber(shade)
+          local bg = vim.tbl_get(M.colors, color, shade)
+          if bg then
+            local hl = "MiniHipatternsTailwind" .. color .. shade
+            if not M.hl[hl] then
+              M.hl[hl] = true
+              local bg_shade = shade == 500 and 950 or shade < 500 and 900 or 100
+              local fg = vim.tbl_get(M.colors, color, bg_shade)
+              vim.api.nvim_set_hl(0, hl, { bg = "#" .. bg, fg = "#" .. fg })
+            end
+            return hl
+          end
+        end,
+        extmark_opts = { priority = 2000 },
+      }
+    end
+    require("mini.hipatterns").setup(opts)
+  end,
+}-- }
+  -- {
+  --   "esmuellert/vscode-diff.nvim",
+  --   dependencies = { "MunifTanjim/nui.nvim" },
+  --   cmd = "CodeDiff",
+  -- },
+  -- {
+  --   "MeanderingProgrammer/treesitter-modules.nvim",
+  --   dependencies = { "nvim-treesitter/nvim-treesitter" },
+  --   opts = {
+  --     incremental_selection = {
+  --       enable = true,
+  --       disable = false,
+  --       -- set value to `false` to disable individual mapping
+  --       keymaps = {
+  --         init_selection = "<c-space>",
+  --         node_incremental = "v",
+  --         scope_incremental = false,
+  --         node_decremental = "V",
+  --       },
+  --     },
+  --   },
+  -- },
 }
