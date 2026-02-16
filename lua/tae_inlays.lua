@@ -30,7 +30,8 @@ end
 local function show_inlays()
   vim.api.nvim_buf_clear_namespace(0, ns_id, 0, -1)
   local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-  local accumulated = 0
+
+  local accumulated_time = 0
 
   for line_num, line in ipairs(lines) do
     local delay_str = line:match('<r%s+delay="(%d+)"%s*/>')
@@ -40,11 +41,11 @@ local function show_inlays()
 
     if delay_str then
       local delay = tonumber(delay_str) or 0
-      accumulated = accumulated + delay
-      hint = " [" .. accumulated .. "ms]"
+      accumulated_time = accumulated_time + delay
+      hint = " [" .. accumulated_time .. "ms]"
     elseif time_str then
-      accumulated = tonumber(time_str) or 0
-      hint = " [" .. accumulated .. "ms]"
+      accumulated_time = tonumber(time_str) or 0
+      hint = " [" .. accumulated_time .. "ms]"
     end
 
     if hint then
@@ -54,12 +55,10 @@ local function show_inlays()
       })
     end
 
-    -- local matches = line:gmatch('"([0-9a-fA-F]+)"')
-    -- for m in matches do
-    --   vim.print(m)
-    -- end
-    local line_offset = 1
+  end
 
+  for line_num, line in ipairs(lines) do
+    local line_offset = 1
     while true do
       local match_start, match_end = string.find(line, 'valeur *= *"', line_offset)
       if match_start == nil then
@@ -91,9 +90,6 @@ local function show_inlays()
       if not found then
         found = string.match(hex_str, '100207..(..)')
       end
-
-
-      -- 1002077f230000000010033b
 
       -- if #hex_str % 2 == 0 then
       if true then
