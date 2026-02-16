@@ -57,6 +57,7 @@ return {
           },
         },
         files = {
+          exclude = {"Doc/**"},
           hidden = true,
           ignored = true,
           layout = {
