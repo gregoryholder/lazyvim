@@ -19,6 +19,7 @@ return {
       return vim.list_extend(mappings, keys)
     end,
     opts = {
+      n_lines = 100,
       mappings = {
         add = "sa", -- Add surrounding in Normal and Visual modes
         delete = "sd", -- Delete surrounding
