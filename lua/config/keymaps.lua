@@ -1,4 +1,3 @@
-
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 --
@@ -6,8 +5,8 @@
 -- vim.keymap.set("n", "<C-u>", "<C-u>zz")
 -- vim.keymap.set("n", "<C-d>", "<C-d>zz")
 
-vim.keymap.set('n', '[x', '<Plug>(git-conflict-prev-conflict)')
-vim.keymap.set('n', ']x', '<Plug>(git-conflict-next-conflict)')
+vim.keymap.set("n", "[x", "<Plug>(git-conflict-prev-conflict)")
+vim.keymap.set("n", "]x", "<Plug>(git-conflict-next-conflict)")
 
 vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
 vim.keymap.set("n", "<leader>Y", [["+Y]])
@@ -32,7 +31,6 @@ vim.keymap.set("n", "<leader>Y", [["+Y]])
 -- vim.keymap.set('n', '<leader><leader>k', require('smart-splits').swap_buf_up)
 -- vim.keymap.set('n', '<leader><leader>l', require('smart-splits').swap_buf_right)
 
-
 local switcher = require("custom.switcher")
 
 vim.keymap.set("n", "<leader>ch", switcher.dispatch_switch, { desc = "Switch Header/Source or XML/CFGlocale" })
@@ -41,9 +39,23 @@ vim.keymap.set("n", "<leader>ch", switcher.dispatch_switch, { desc = "Switch Hea
 -- vim.keymap.set({ "n", "x" }, "<leader>rr", function()
 --   require("refactoring").select_refactor()
 -- end)
-vim.keymap.set('n', '<leader>cf', function()
-  local filename = vim.fn.expand('%:t:r')  -- Get filename without path and extension
-  vim.fn.setreg('+', filename)             -- Copy to system clipboard
-  print('Copied to clipboard: ' .. filename)
-end, { desc = 'Copy filename (no path, no extension) to clipboard' })
+vim.keymap.set("n", "<leader>htr", function()
+  local filename = vim.fn.expand("%:t:r") -- Get filename without path and extension
+  vim.fn.setreg("+", filename) -- Copy to system clipboard
+end, { desc = "Copy filename (no path, no extension) to clipboard" })
 
+vim.keymap.set("n", "<leader>hpp", function()
+  local filename = vim.fn.expand("%:p")
+  vim.fn.setreg("+", filename) -- Copy to system clipboard
+end, { desc = "Copy filename (full path) to clipboard" })
+
+vim.keymap.set("n", "<leader>c/", function()
+  local grug = require("grug-far")
+  local curr_file = vim.fn.expand("%")
+  grug.open({
+    transient = true,
+    prefills = {
+      filesFilter = curr_file
+    },
+  })
+end, { desc = "Copy filename (full path) to clipboard" })
