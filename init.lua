@@ -91,11 +91,13 @@ vim.diagnostic.config({
 })
 vim.o.clipboard = 'unnamedplus'
 
--- Highlight trailing whitespace
+-- Highlight trailing whitespace (only in writable buffers)
 vim.api.nvim_set_hl(0, "TrailingWhitespace", { bg = "#AF00FF", fg = "#FFFFFF" })
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile", "InsertLeave" }, {
   callback = function()
-    vim.fn.matchadd("TrailingWhitespace", "\\s\\+$", -1)
+    if vim.bo.modifiable then
+      vim.fn.matchadd("TrailingWhitespace", "\\s\\+$", -1)
+    end
   end,
 })
 
