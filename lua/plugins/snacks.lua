@@ -1,7 +1,7 @@
 return {
   "snacks.nvim",
   keys = {
-    { "<leader>ps", function() Snacks.profiler.scratch() end, desc = "Profiler Scratch Bufer" },
+    -- { "<leader>ps", function() Snacks.profiler.scratch() end, desc = "Profiler Scratch Bufer" },
     { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep" },
   },
   opts = {
@@ -57,7 +57,7 @@ return {
           },
         },
         files = {
-          exclude = {"Doc/**"},
+          exclude = {"Doc/**", "node_modules/", "ResultatsTestsAuto/"},
           hidden = true,
           ignored = true,
           layout = {
@@ -79,9 +79,9 @@ return {
   },
   config = function(_, opts)
     -- Toggle the profiler
-    Snacks.toggle.profiler():map("<leader>pp")
+    -- Snacks.toggle.profiler():map("<leader>pp")
     -- Toggle the profiler highlights
-    Snacks.toggle.profiler_highlights():map("<leader>ph")
+    -- Snacks.toggle.profiler_highlights():map("<leader>ph")
 
     original_truncpath = Snacks.picker.util.truncpath
     Snacks.picker.util.truncpath = function(path, len, opts)
