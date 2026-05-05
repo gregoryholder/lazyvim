@@ -51,6 +51,11 @@ return {
     opts = {
       formatters_by_ft = {
         rust = { "rustfmt", lsp_format = "fallback" },
+        javascript = { "prettierd", "prettier", stop_after_first = true },
+      },
+      -- Set default options
+      default_format_opts = {
+        lsp_format = "fallback",
       },
     },
   },
@@ -97,7 +102,7 @@ return {
         -- },
         rust_analyzer = {
           settings = {
-            ['rust-analyzer'] = {
+            ["rust-analyzer"] = {
               cargo = {
                 targetDir = true
               },
@@ -329,97 +334,129 @@ return {
         mode = { "i", "s" },
       },
     },
-
   },
   {
-  "nvim-mini/mini.hipatterns",
-  recommended = true,
-  desc = "Highlight colors in your code. Also includes Tailwind CSS support.",
-  event = "LazyFile",
-  opts = function()
-    local hi = require("mini.hipatterns")
-    return {
-      -- custom LazyVim option to enable the tailwind integration
-      tailwind = {
-        enabled = true,
-        ft = {
-          "astro",
-          "css",
-          "heex",
-          "html",
-          "html-eex",
-          "javascript",
-          "javascriptreact",
-          "rust",
-          "svelte",
-          "typescript",
-          "typescriptreact",
-          "vue",
+    "nvim-mini/mini.hipatterns",
+    recommended = true,
+    desc = "Highlight colors in your code. Also includes Tailwind CSS support.",
+    event = "LazyFile",
+    opts = function()
+      local hi = require("mini.hipatterns")
+      return {
+        -- custom LazyVim option to enable the tailwind integration
+        tailwind = {
+          enabled = true,
+          ft = {
+            "astro",
+            "css",
+            "heex",
+            "html",
+            "html-eex",
+            "javascript",
+            "javascriptreact",
+            "rust",
+            "svelte",
+            "typescript",
+            "typescriptreact",
+            "vue",
+          },
+          -- full: the whole css class will be highlighted
+          -- compact: only the color will be highlighted
+          style = "full",
         },
-        -- full: the whole css class will be highlighted
-        -- compact: only the color will be highlighted
-        style = "full",
-      },
-      highlighters = {
-        hex_color = hi.gen_highlighter.hex_color({ priority = 2000 }),
-        -- shorthand = {
-        --   pattern = "()#%x%x%x()%f[^%x%w]",
-        --   group = function(_, _, data)
-        --     ---@type string
-        --     local match = data.full_match
-        --     local r, g, b = match:sub(2, 2), match:sub(3, 3), match:sub(4, 4)
-        --     local hex_color = "#" .. r .. r .. g .. g .. b .. b
-        --
-        --     return MiniHipatterns.compute_hex_color_group(hex_color, "bg")
-        --   end,
-        --   extmark_opts = { priority = 2000 },
-        -- },
-      },
-    }
-  end,
-  config = function(_, opts)
-    if type(opts.tailwind) == "table" and opts.tailwind.enabled then
-      -- reset hl groups when colorscheme changes
-      vim.api.nvim_create_autocmd("ColorScheme", {
-        callback = function()
-          M.hl = {}
-        end,
-      })
-      opts.highlighters.tailwind = {
-        pattern = function()
-          if not vim.tbl_contains(opts.tailwind.ft, vim.bo.filetype) then
-            return
-          end
-          if opts.tailwind.style == "full" then
-            return "%f[%w:-]()[%w:-]+%-[a-z%-]+%-%d+()%f[^%w:-]"
-          elseif opts.tailwind.style == "compact" then
-            return "%f[%w:-][%w:-]+%-()[a-z%-]+%-%d+()%f[^%w:-]"
-          end
-        end,
-        group = function(_, _, m)
-          ---@type string
-          local match = m.full_match
-          ---@type string, number
-          local color, shade = match:match("[%w-]+%-([a-z%-]+)%-(%d+)")
-          shade = tonumber(shade)
-          local bg = vim.tbl_get(M.colors, color, shade)
-          if bg then
-            local hl = "MiniHipatternsTailwind" .. color .. shade
-            if not M.hl[hl] then
-              M.hl[hl] = true
-              local bg_shade = shade == 500 and 950 or shade < 500 and 900 or 100
-              local fg = vim.tbl_get(M.colors, color, bg_shade)
-              vim.api.nvim_set_hl(0, hl, { bg = "#" .. bg, fg = "#" .. fg })
-            end
-            return hl
-          end
-        end,
-        extmark_opts = { priority = 2000 },
+        highlighters = {
+          hex_color = hi.gen_highlighter.hex_color({ priority = 2000 }),
+          -- shorthand = {
+          --   pattern = "()#%x%x%x()%f[^%x%w]",
+          --   group = function(_, _, data)
+          --     ---@type string
+          --     local match = data.full_match
+          --     local r, g, b = match:sub(2, 2), match:sub(3, 3), match:sub(4, 4)
+          --     local hex_color = "#" .. r .. r .. g .. g .. b .. b
+          --
+          --     return MiniHipatterns.compute_hex_color_group(hex_color, "bg")
+          --   end,
+          --   extmark_opts = { priority = 2000 },
+          -- },
+        },
       }
-    end
-    require("mini.hipatterns").setup(opts)
-  end,
-}-- }
+    end,
+    config = function(_, opts)
+      if type(opts.tailwind) == "table" and opts.tailwind.enabled then
+        -- reset hl groups when colorscheme changes
+        vim.api.nvim_create_autocmd("ColorScheme", {
+          callback = function()
+            M.hl = {}
+          end,
+        })
+        opts.highlighters.tailwind = {
+          pattern = function()
+            if not vim.tbl_contains(opts.tailwind.ft, vim.bo.filetype) then
+              return
+            end
+            if opts.tailwind.style == "full" then
+              return "%f[%w:-]()[%w:-]+%-[a-z%-]+%-%d+()%f[^%w:-]"
+            elseif opts.tailwind.style == "compact" then
+              return "%f[%w:-][%w:-]+%-()[a-z%-]+%-%d+()%f[^%w:-]"
+            end
+          end,
+          group = function(_, _, m)
+            ---@type string
+            local match = m.full_match
+            ---@type string, number
+            local color, shade = match:match("[%w-]+%-([a-z%-]+)%-(%d+)")
+            shade = tonumber(shade)
+            local bg = vim.tbl_get(M.colors, color, shade)
+            if bg then
+              local hl = "MiniHipatternsTailwind" .. color .. shade
+              if not M.hl[hl] then
+                M.hl[hl] = true
+                local bg_shade = shade == 500 and 950 or shade < 500 and 900 or 100
+                local fg = vim.tbl_get(M.colors, color, bg_shade)
+                vim.api.nvim_set_hl(0, hl, { bg = "#" .. bg, fg = "#" .. fg })
+              end
+              return hl
+            end
+          end,
+          extmark_opts = { priority = 2000 },
+        }
+      end
+      require("mini.hipatterns").setup(opts)
+    end,
+  },
+  {
+    "sindrets/diffview.nvim",
+  },
+  {
+    "gbprod/yanky.nvim",
+    dependencies = {
+      { "kkharji/sqlite.lua" }
+    },
+    opts = {
+      -- ring = { storage = "sqlite" },
+    },
+    keys = {
+      { "<leader>p", "<cmd>YankyRingHistory<cr>", mode = { "n", "x" }, desc = "Open Yank History" },
+      { "y", "<Plug>(YankyYank)", mode = { "n", "x" }, desc = "Yank text" },
+      { "p", "<Plug>(YankyPutAfter)", mode = { "n", "x" }, desc = "Put yanked text after cursor" },
+      { "P", "<Plug>(YankyPutBefore)", mode = { "n", "x" }, desc = "Put yanked text before cursor" },
+      { "gp", "<Plug>(YankyGPutAfter)", mode = { "n", "x" }, desc = "Put yanked text after cursor and leave cursor after" },
+      { "gP", "<Plug>(YankyGPutBefore)", mode = { "n", "x" }, desc = "Put yanked text before cursor and leave cursor after" },
+      { "<c-p>", "<Plug>(YankyPreviousEntry)", desc = "Select previous entry through yank history" },
+      { "<c-n>", "<Plug>(YankyNextEntry)", desc = "Select next entry through yank history" },
+      { "]p", "<Plug>(YankyPutIndentAfterLinewise)", desc = "Put indented after cursor (linewise)" },
+      { "[p", "<Plug>(YankyPutIndentBeforeLinewise)", desc = "Put indented before cursor (linewise)" },
+      { "]P", "<Plug>(YankyPutIndentAfterLinewise)", desc = "Put indented after cursor (linewise)" },
+      { "[P", "<Plug>(YankyPutIndentBeforeLinewise)", desc = "Put indented before cursor (linewise)" },
+      { ">p", "<Plug>(YankyPutIndentAfterShiftRight)", desc = "Put and indent right" },
+      { "<p", "<Plug>(YankyPutIndentAfterShiftLeft)", desc = "Put and indent left" },
+      { ">P", "<Plug>(YankyPutIndentBeforeShiftRight)", desc = "Put before and indent right" },
+      { "<P", "<Plug>(YankyPutIndentBeforeShiftLeft)", desc = "Put before and indent left" },
+      { "=p", "<Plug>(YankyPutAfterFilter)", desc = "Put after applying a filter" },
+      { "=P", "<Plug>(YankyPutBeforeFilter)", desc = "Put before applying a filter" },
+    },
+  },
+  { 'nvim-mini/mini.align', version = '*' },
   -- {
   --   "esmuellert/vscode-diff.nvim",
   --   dependencies = { "MunifTanjim/nui.nvim" },
