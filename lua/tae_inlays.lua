@@ -91,8 +91,8 @@ local function show_inlays()
         found = string.match(hex_str, '100207..(..)')
       end
 
-      -- if #hex_str % 2 == 0 then
-      if true then
+      if #hex_str % 2 == 0 then
+      -- if true then
         local ascii = {}
         for i = 1, #hex_str, 2 do
           local byte = tonumber(hex_str:sub(i, i + 1), 16)
@@ -149,7 +149,7 @@ function M.toggle_inlays()
 
   if enabled then
     show_inlays()
-    vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWritePost", "CursorMoved" }, {
+    vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWritePost", "BufEnter", "CursorMoved" }, {
       group = vim.api.nvim_create_augroup("XmlDelayInlays", { clear = true }),
       callback = function()
         show_inlays()
