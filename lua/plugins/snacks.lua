@@ -1,3 +1,26 @@
+local grep_excluded_dirs = { "Android/**", "Libs/**" }
+
+local function apply_excluded_dirs(picker)
+  local exclude = vim.deepcopy(picker.opts.exclude or {})
+  exclude = vim.tbl_filter(function(dir)
+    return not vim.tbl_contains(grep_excluded_dirs, dir)
+  end, exclude)
+
+  if picker.opts.hide_android_libs ~= false then
+    for _, dir in ipairs(grep_excluded_dirs) do
+      table.insert(exclude, dir)
+    end
+  end
+
+  picker.opts.exclude = exclude
+end
+
+local function toggle_excluded_dirs(picker)
+  picker.opts.hide_android_libs = not picker.opts.hide_android_libs
+  apply_excluded_dirs(picker)
+  picker:find()
+end
+
 return {
   "snacks.nvim",
   keys = {
@@ -48,20 +71,29 @@ return {
             },
           })
         end,
+        toggle_excluded_dirs = function(picker)
+          toggle_excluded_dirs(picker)
+        end,
       },
  -- lua Snacks.picker.grep({dirs = {"Modules"}})
       sources = {
         grep = {
+          hide_android_libs = true,
           exclude = { "Android/**", "Libs/**" },
+          toggles = {
+            hide_android_libs = { icon = "A" },
+          },
           win = {
             input = {
               keys = {
                 ["<C-g>"] = { "grep_to_grug", mode = { "n", "i" } },
+                ["<A-e>"] = { "toggle_excluded_dirs", mode = { "n", "i" } },
               },
             },
             list = {
               keys = {
                 ["<C-g>"] = { "grep_to_grug", mode = { "n", "x" } },
+                ["<A-e>"] = { "toggle_excluded_dirs", mode = { "n", "x" } },
               },
             },
           },
@@ -79,16 +111,22 @@ return {
           },
         },
         grep_word = {
+          hide_android_libs = true,
           exclude = { "Android/**", "Libs/**" },
+          toggles = {
+            hide_android_libs = { icon = "A" },
+          },
           win = {
             input = {
               keys = {
                 ["<C-g>"] = { "grep_to_grug", mode = { "n", "i" } },
+                ["<A-e>"] = { "toggle_excluded_dirs", mode = { "n", "i" } },
               },
             },
             list = {
               keys = {
                 ["<C-g>"] = { "grep_to_grug", mode = { "n", "x" } },
+                ["<A-e>"] = { "toggle_excluded_dirs", mode = { "n", "x" } },
               },
             },
           },
