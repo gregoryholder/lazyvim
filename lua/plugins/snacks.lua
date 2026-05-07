@@ -33,10 +33,38 @@ return {
           truncate = 100
         },
       },
--- lua Snacks.picker.grep({dirs = {"Modules"}})
+      actions = {
+        grep_to_grug = function(picker)
+          local search = vim.trim(picker.input.filter.search or "")
+          if search == "" then
+            Snacks.notify.warn("No grep search to send to grug-far", { title = "Snacks Picker" })
+            return
+          end
+          picker:close()
+          require("grug-far").open({
+            prefills = {
+              search = search,
+              paths = picker:cwd(),
+            },
+          })
+        end,
+      },
+ -- lua Snacks.picker.grep({dirs = {"Modules"}})
       sources = {
         grep = {
           exclude = { "Android/**", "Libs/**" },
+          win = {
+            input = {
+              keys = {
+                ["<C-g>"] = { "grep_to_grug", mode = { "n", "i" } },
+              },
+            },
+            list = {
+              keys = {
+                ["<C-g>"] = { "grep_to_grug", mode = { "n", "x" } },
+              },
+            },
+          },
           -- auto_close = false,
           -- jump = {
           --   close = false
@@ -52,6 +80,18 @@ return {
         },
         grep_word = {
           exclude = { "Android/**", "Libs/**" },
+          win = {
+            input = {
+              keys = {
+                ["<C-g>"] = { "grep_to_grug", mode = { "n", "i" } },
+              },
+            },
+            list = {
+              keys = {
+                ["<C-g>"] = { "grep_to_grug", mode = { "n", "x" } },
+              },
+            },
+          },
           layout = {
             layout = {
               width = 0
