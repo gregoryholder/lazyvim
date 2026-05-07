@@ -36,6 +36,7 @@ return {
 -- lua Snacks.picker.grep({dirs = {"Modules"}})
       sources = {
         grep = {
+          exclude = { "Android/**", "Libs/**" },
           -- auto_close = false,
           -- jump = {
           --   close = false
@@ -50,6 +51,7 @@ return {
           },
         },
         grep_word = {
+          exclude = { "Android/**", "Libs/**" },
           layout = {
             layout = {
               width = 0
