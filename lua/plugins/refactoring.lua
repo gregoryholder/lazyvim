@@ -1,5 +1,8 @@
 return {
   "ThePrimeagen/refactoring.nvim",
+  dependencies = {
+    "lewis6991/async.nvim",
+  },
   opts = {
     print_var_statements = {
       cpp = {
