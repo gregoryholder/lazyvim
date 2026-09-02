@@ -4,10 +4,10 @@
 --
 
 vim.g.autoformat = false
+-- vim.g.lazyvim_eslint_auto_format = true
 
 vim.g.snacks_animate = false
 
 vim.opt.wrap = true
 
 vim.opt.clipboard = ""
-
