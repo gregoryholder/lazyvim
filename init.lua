@@ -12,6 +12,23 @@ if should_profile then
   end
 end
 
+local nvim_fnm_node_version = vim.env.NVIM_FNM_NODE_VERSION or "22"
+if vim.fn.executable("fnm") == 1 then
+  local node_path = vim.trim(vim.fn.system({
+    "fnm",
+    "exec",
+    "--using=" .. nvim_fnm_node_version,
+    "--",
+    "node",
+    "-p",
+    "process.execPath",
+  }))
+  if vim.v.shell_error == 0 and vim.fn.executable(node_path) == 1 then
+    local nvim_node_bin = vim.fn.fnamemodify(node_path, ":h")
+    vim.env.PATH = nvim_node_bin .. ":" .. vim.env.PATH
+  end
+end
+
 local function toggle_profile()
   local prof = require("profile")
   if prof.is_recording() then
@@ -54,11 +71,11 @@ local delay_inlay = require("tae_inlays")
 -- require("snacks").toggle.option()
 vim.keymap.set("n", "<leader>ue", delay_inlay.toggle_inlays, { desc = "Toggle XML Delay Inlays" })
 
-vim.api.nvim_create_autocmd({ "BufEnter" }, {
-  callback = function()
-    os.execute("wezterm cli activate-pane")
-  end,
-})
+-- vim.api.nvim_create_autocmd({ "BufEnter" }, {
+--   callback = function()
+--     os.execute("wezterm cli activate-pane")
+--   end,
+-- })
 
 vim.opt.path:append("Affaires/*/tactileo_ucineo11/mineo/res/")
 
@@ -95,11 +112,23 @@ vim.o.clipboard = 'unnamedplus'
 vim.api.nvim_set_hl(0, "TrailingWhitespace", { bg = "#AF00FF", fg = "#FFFFFF" })
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile", "InsertLeave" }, {
   callback = function()
-    if vim.bo.modifiable then
-      vim.fn.matchadd("TrailingWhitespace", "\\s\\+$", -1)
-    end
+    -- if vim.bo.modifiable then
+    --   vim.fn.matchadd("TrailingWhitespace", "\\s\\+$", -1)
+    -- end
   end,
 })
+
+-- -- Highlight invalid leading indentation (not a multiple of 3 spaces)
+-- vim.api.nvim_set_hl(0, "BadIndent", { bg = "#FF005F", fg = "#FFFFFF" })
+-- vim.api.nvim_create_autocmd({ "FileType", "BufRead", "BufNewFile" }, {
+--   pattern = { "cpp", "CfgEmbarqueVEH_generique.xml" },
+--   callback = function()
+--     if vim.bo.modifiable then
+--       -- Leading spaces where count % 3 ~= 0
+--       vim.fn.matchadd("BadIndent", [[^\%( \{3}\)*\%( \{1,2}\)\ze\S]], -1)
+--     end
+--   end,
+-- })
 
 -- Strip trailing whitespace command
 local function strip_trailing_whitespace(opts)
@@ -119,6 +148,34 @@ vim.api.nvim_create_user_command("StripTrailingWhitespace", strip_trailing_white
       return { "-confirm" }
     end
     return {}
+  end,
+})
+
+vim.api.nvim_create_user_command("LspSwitch", function(opts)
+  local program = opts.fargs[1] or "vehicule"
+  -- Define your mapping from program to compile_commands.json path
+  local paths = {
+    vehicule = "TargetLinuxHost/VehiculeUnityBuildsDebug/compile_commands.json",
+    borne = "TargetLinuxHost/BorneUnityBuildsDebug/compile_commands.json",
+    icc = "/path/to/icc/compile_commands.json",
+  }
+  local target_path = paths[program]
+  if not target_path then
+    print("Unknown program: " .. program)
+    return
+  end
+  -- Update symlink (adjust destination as needed)
+  os.execute("ln -sf " .. target_path .. " compile_commands.json")
+  -- Restart clangd
+  vim.cmd("lsp restart")
+  print("Switched to " .. program)
+end, {
+  nargs = '?',
+  complete = function(_, line)
+    local items = { "vehicule", "borne", "icc" }
+    return vim.tbl_filter(function(item)
+        return item:find(vim.fn.expandcmd(line:match("%S+$") or ""), 1, true)
+    end, items)
   end,
 })
 
@@ -142,18 +199,20 @@ vim.api.nvim_create_user_command("StripTrailingWhitespace", strip_trailing_white
 --       end
 --     end
 --
---     vim.g.clipboard = {
---       name = 'OSC 52',
---       copy = {
---         ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
---         ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
---       },
---       paste = {
---         -- No OSC52 paste action since wezterm doesn't support it
---         -- Should still paste from nvim
---         ['+'] = my_paste('+'),
---         ['*'] = my_paste('*'),
---       },
---     }
+-- vim.g.clipboard = {
+--   name = 'OSC 52',
+--   copy = {
+--     ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+--     ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+--   },
+--   paste = {
+--     -- No OSC52 paste action since wezterm doesn't support it
+--     -- Should still paste from nvim
+--     ['+'] = function () end,
+--     ['*'] = function () end,
+--   },
+-- }
+
+vim.g.root_spec = { { ".git", "lua" }, "cwd" }
 --   end
 -- end)
