@@ -1,5 +1,6 @@
 return {
   "nvim-mini/mini.hipatterns",
+  enabled = false,
   recommended = true,
   desc = "Highlight colors in your code. Also includes Tailwind CSS support.",
   event = "LazyFile",

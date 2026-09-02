@@ -1,46 +1,65 @@
 return {
-  "ThePrimeagen/refactoring.nvim",
-  dependencies = {
-    "lewis6991/async.nvim",
-  },
-  opts = {
-    print_var_statements = {
-      cpp = {
-        'CTrace::System().Dev() << "%s " << %s;',
-        'mTrace.Dev() << "%s " << %s;',
-      },
-    },
-    printf_statements = {
-      cpp = {
-        'CTrace::System().Dev() << "%s";',
-        'mTrace.Dev() << "%s";',
-      },
-    },
-  },
-  keys = {
-    {
-      "<leader>rP",
-      function()
-        require("refactoring").debug.printf({ below = false })
-      end,
-      desc = "Debug Print",
-      mode = {"n", "x"},
-    },
-    {
-      "<leader>rp",
-      function()
-        require("refactoring").debug.print_var({ normal = true })
-      end,
-      desc = "Debug Print Variable",
-      mode = {"n", "x"},
-    },
-    {
-      "<leader>rr",
-      function()
-        require("refactoring").select_refactor()
-      end,
-      desc = "Pick",
-      mode = {"n", "x"},
-    },
-  },
+  -- "ThePrimeagen/refactoring.nvim",
+  -- dependencies = {
+  --   "lewis6991/async.nvim",
+  -- },
+  -- opts = {
+  --   debug = {
+  --     print_var = {
+  --       code_generation = {
+  --         print_var = {
+  --           cpp = function(opts)
+  --             vim.print(opts)
+  --             return ([[CTrace::System().Dev() << "%s" << ": %s %s: " << %s << "\n";]]):format(
+  --               opts.debug_path,
+  --               opts.identifier_str,
+  --               opts.count,
+  --               opts.identifier
+  --             )
+  --           end,
+  --         },
+  --       },
+  --     },
+  --   },
+  -- },
+  -- opts = {
+  --   print_var_statements = {
+  --     cpp = {
+  --       'CTrace::System().Dev() << "%s " << %s;',
+  --       'mTrace.Dev() << "%s " << %s;',
+  --     },
+  --   },
+  --   printf_statements = {
+  --     cpp = {
+  --       'CTrace::System().Dev() << "%s";',
+  --       'mTrace.Dev() << "%s";',
+  --     },
+  --   },
+  -- },
+  -- keys = {
+  --   {
+  --     "<leader>rP",
+  --     function()
+  --       require("refactoring").debug.print_loc({output_location = "below"})
+  --     end,
+  --     desc = "Debug Print",
+  --     mode = {"n", "x"},
+  --   },
+  --   {
+  --     "<leader>rp",
+  --     function()
+  --       require("refactoring.debug").print_var({output_location = "below"})
+  --     end,
+  --     desc = "Debug Print Variable",
+  --     mode = {"n", "x"},
+  --   },
+  --   {
+  --     "<leader>rr",
+  --     function()
+  --       require("refactoring").select_refactor()
+  --     end,
+  --     desc = "Pick",
+  --     mode = {"n", "x"},
+  --   },
+  -- },
 }

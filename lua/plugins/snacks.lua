@@ -54,8 +54,8 @@ end
 
 local function grep_source(extra)
   return vim.tbl_deep_extend("force", {
-    hide_android_libs = true,
-    exclude = vim.deepcopy(GREP_EXCLUDED_DIRS),
+    hide_android_libs = false,
+    -- exclude = vim.deepcopy(GREP_EXCLUDED_DIRS),
     toggles = {
       hide_android_libs = { icon = "A" },
     },
@@ -101,7 +101,7 @@ return {
         files = {
           exclude = { "Doc/**", "node_modules/", "ResultatsTestsAuto/" },
           hidden = true,
-          ignored = true,
+          ignored = false,
           layout = {
             layout = {
               width = 0,
