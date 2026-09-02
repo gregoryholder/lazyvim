@@ -49,6 +49,13 @@ vim.keymap.set("n", "<leader>hpp", function()
   vim.fn.setreg("+", filename) -- Copy to system clipboard
 end, { desc = "Copy filename (full path) to clipboard" })
 
+vim.keymap.set("n", "<leader>hr", function()
+  local filename = vim.fn.expand("%:p")
+  local root = vim.fn.getcwd()
+  local relative_path = vim.fn.fnamemodify(filename, ":." .. root)
+  vim.fn.setreg("+", relative_path) -- Copy to system clipboard
+end, { desc = "Copy filename (relative to root) to clipboard" })
+
 vim.keymap.set("n", "<leader>c/", function()
   local grug = require("grug-far")
   local curr_file = vim.fn.expand("%")
