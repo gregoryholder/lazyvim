@@ -34,6 +34,23 @@ return {
           "--header-insertion=never",
         },
       },
+      vtsls = {
+        handlers = {
+          ["textDocument/publishDiagnostics"] = function(_, result, ctx)
+            if result.diagnostics then
+              result.diagnostics = vim.tbl_filter(function(d)
+                return d.code ~= 80001
+              end, result.diagnostics)
+            end
+
+            vim.lsp.diagnostic.on_publish_diagnostics(
+              nil,
+              result,
+              ctx
+            )
+          end,
+        },
+      },
     },
   },
 }
